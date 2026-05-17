@@ -1,6 +1,8 @@
 import type { MetadataRoute } from 'next';
 import { businesses } from '@/data/businesses';
 
+export const dynamic = 'force-static';
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://thelimaplank.com';
   const now = new Date();

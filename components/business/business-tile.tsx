@@ -1,84 +1,110 @@
 import type { Business } from '@/data/businesses';
+import { asset } from '@/lib/asset-path';
 
 type BusinessTileProps = {
   business: Business;
   variant?: 'card' | 'hero' | 'thumb';
   className?: string;
+  priority?: boolean;
 };
 
 /**
- * Editorial placeholder for storefront imagery — large monogram, accent wash,
- * grain, and a faint compass mark in the bottom corner. Used everywhere a
- * photo would eventually live so the layout doesn't shift when imagery
- * arrives. Swap the inner `<svg>` for a real <Image> later.
+ * Photographic tile for a storefront. Loads /businesses/<slug>.webp by default
+ * and renders a layered color-wash + monogram fallback for the small
+ * block-map thumbnails (where a real photo would never read at ~40px wide)
+ * or any business without a published image (coming-soon listings).
  */
-export function BusinessTile({ business, variant = 'card', className = '' }: BusinessTileProps) {
-  const monogram = business.shortName.replace(/[^A-Za-z]/g, '').charAt(0).toUpperCase();
-  const sizeClass =
-    variant === 'hero'
-      ? 'text-[clamp(8rem,22vw,22rem)]'
-      : variant === 'thumb'
-        ? 'text-[clamp(3rem,8vw,6rem)]'
-        : 'text-[clamp(5rem,14vw,12rem)]';
+export function BusinessTile({
+  business,
+  variant = 'card',
+  className = '',
+  priority = false,
+}: BusinessTileProps) {
+  // Real photo on cards/heroes — designed monogram fallback on tiny thumbs
+  const usePhoto = variant !== 'thumb';
 
   return (
-    <div
-      className={`relative h-full w-full overflow-hidden ${className}`}
-      style={{
-        background: `radial-gradient(120% 100% at 0% 0%, ${business.accentSoft} 0%, ${business.accent} 55%, ${shade(business.accent, -25)} 100%)`,
-      }}
-    >
-      {/* monogram layer */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span
-          className={`font-display font-bold leading-none ${sizeClass}`}
-          style={{
-            color: shade(business.accent, -40),
-            opacity: 0.22,
-            transform: 'translateY(-4%)',
-          }}
-        >
-          {monogram}
-        </span>
-      </div>
-
-      {/* horizontal plank texture lines */}
+    <div className={`relative h-full w-full overflow-hidden ${className}`}>
+      {/* color wash sits below the image as a load-in placeholder */}
       <div
-        aria-hidden
-        className="absolute inset-0 opacity-[0.18] mix-blend-multiply"
+        className="absolute inset-0"
         style={{
-          backgroundImage:
-            'repeating-linear-gradient(0deg, transparent 0px, transparent 38px, rgba(0,0,0,0.18) 38px, rgba(0,0,0,0.18) 39px)',
+          background: `radial-gradient(120% 100% at 0% 0%, ${business.accentSoft} 0%, ${business.accent} 55%, ${shade(business.accent, -25)} 100%)`,
         }}
       />
 
-      {/* speckle overlay */}
-      <div aria-hidden className="absolute inset-0 bg-speckle opacity-30 mix-blend-multiply" />
-
-      {/* corner accent stamp */}
-      {variant !== 'thumb' && (
-        <div
-          className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 flex items-center gap-2 rounded-full border border-current/40 bg-black/10 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.22em]"
-          style={{ color: shade(business.accent, -55) }}
-        >
-          <span
-            className="h-1.5 w-1.5 rounded-full"
-            style={{
-              background: shade(business.accent, -55),
-              boxShadow: `0 0 0 3px ${business.accentSoft}66`,
-            }}
+      {usePhoto ? (
+        <>
+          <img
+            src={asset(`/businesses/${business.slug}.webp`)}
+            alt={`${business.name} — ${business.category.split('·')[0].trim()}`}
+            loading={priority || variant === 'hero' ? 'eager' : 'lazy'}
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
           />
-          {business.category.split('·')[0].trim()}
-        </div>
+          {/* film-grain speckle (very subtle) */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-speckle opacity-[0.12] mix-blend-multiply"
+          />
+        </>
+      ) : (
+        // Monogram fallback — used for tiny thumbs and businesses w/o photos.
+        <Monogram business={business} />
       )}
 
       {/* top edge plank seam */}
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 h-[3px]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[3px]"
         style={{ background: shade(business.accent, -50) }}
       />
+
+      {/* corner category stamp — only on cards/heroes */}
+      {variant !== 'thumb' && (
+        <div
+          className="pointer-events-none absolute bottom-4 right-4 z-10 flex items-center gap-2 rounded-full border border-white/30 bg-black/45 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-white backdrop-blur-sm sm:bottom-5 sm:right-5"
+        >
+          <span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{
+              background: business.accentSoft,
+              boxShadow: `0 0 0 3px ${business.accent}88`,
+            }}
+          />
+          {business.category.split('·')[0].trim()}
+        </div>
+      )}
     </div>
+  );
+}
+
+function Monogram({ business }: { business: Business }) {
+  const letter = business.shortName.replace(/[^A-Za-z]/g, '').charAt(0).toUpperCase();
+  return (
+    <>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span
+          className="font-display font-bold leading-none text-[clamp(2rem,8vw,5rem)]"
+          style={{
+            color: shade(business.accent, -45),
+            opacity: 0.28,
+            transform: 'translateY(-4%)',
+          }}
+        >
+          {letter}
+        </span>
+      </div>
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-[0.18] mix-blend-multiply"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(0deg, transparent 0px, transparent 22px, rgba(0,0,0,0.18) 22px, rgba(0,0,0,0.18) 23px)',
+        }}
+      />
+      <div aria-hidden className="absolute inset-0 bg-speckle opacity-25 mix-blend-multiply" />
+    </>
   );
 }
 

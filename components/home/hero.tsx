@@ -4,22 +4,35 @@ import Link from 'next/link';
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { businesses, districtMeta } from '@/data/businesses';
+import { asset } from '@/lib/asset-path';
 
 export function HomeHero() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
-  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const y = useTransform(scrollYProgress, [0, 1], ['0%', '35%']);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+  const overlayOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   return (
-    <section ref={ref} className="relative isolate overflow-hidden pt-32 pb-20 lg:pt-44 lg:pb-32">
-      {/* layered backdrop */}
-      <motion.div style={{ y }} className="absolute inset-0 -z-10">
-        <SkylineBackdrop />
+    <section ref={ref} className="relative isolate min-h-[100svh] overflow-hidden">
+      {/* Parallax hero image of the block */}
+      <motion.div style={{ y, scale }} className="absolute inset-0 -z-10">
+        <img
+          src={asset('/hero-block.webp')}
+          alt="The Lima Plank — golden hour on an eleven-storefront Main Street block"
+          loading="eager"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        {/* paper-toned gradient wash */}
+        <div className="absolute inset-0 bg-gradient-to-b from-paper-100/40 via-paper-100/30 to-paper-100" />
+        <div className="absolute inset-0 bg-gradient-to-r from-paper-100/55 via-transparent to-transparent" />
+        {/* speckle/film grain */}
+        <div aria-hidden className="absolute inset-0 bg-speckle opacity-25 mix-blend-multiply" />
       </motion.div>
 
-      <div className="mx-auto max-w-page px-6 lg:px-10">
-        <motion.div style={{ opacity }} className="max-w-5xl">
+      <div className="mx-auto flex min-h-[100svh] max-w-page flex-col justify-end px-6 pb-16 pt-40 lg:px-10 lg:pb-24 lg:pt-44">
+        <motion.div style={{ opacity: overlayOpacity }} className="max-w-5xl">
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -34,7 +47,7 @@ export function HomeHero() {
             <SplitLine delay={0.15}>Eleven storefronts.</SplitLine>
             <SplitLine delay={0.3}>One main street.</SplitLine>
             <SplitLine delay={0.45}>
-              <span className="font-script text-ember-400 not-italic font-medium">
+              <span className="font-script font-medium not-italic text-ember-400">
                 Built one plank at a time.
               </span>
             </SplitLine>
@@ -44,9 +57,9 @@ export function HomeHero() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.7 }}
-            className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-300/75 sm:text-xl"
+            className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-300/85 sm:text-xl"
           >
-            A coffee bar, a ceramics studio, a pickling kitchen, a pinball room, and seven other independently
+            A coffee bar, a ceramics studio, a brining kitchen, a pinball room, and seven other independently
             owned shops — sharing one boardwalk-style block in downtown Lima, Ohio.
           </motion.p>
 
@@ -69,7 +82,7 @@ export function HomeHero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 1.1 }}
-            className="mt-14 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-ink-300/10 pt-8 sm:grid-cols-4"
+            className="mt-12 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-ink-300/15 pt-8 sm:grid-cols-4"
           >
             <StatBlock label="Storefronts" value={`${businesses.length}`} />
             <StatBlock label="Block" value="100 – 160 The Plank" />
@@ -78,6 +91,22 @@ export function HomeHero() {
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Scroll hint */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.4, duration: 0.8 }}
+        className="pointer-events-none absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 text-ink-300/55"
+      >
+        <span className="font-mono text-[9px] uppercase tracking-[0.3em]">Scroll</span>
+        <motion.span
+          initial={{ y: 0, opacity: 0.4 }}
+          animate={{ y: 8, opacity: 1 }}
+          transition={{ repeat: Infinity, repeatType: 'reverse', duration: 1.4, ease: 'easeInOut' }}
+          className="block h-5 w-px bg-current"
+        />
+      </motion.div>
     </section>
   );
 }
@@ -85,7 +114,7 @@ export function HomeHero() {
 function StatBlock({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="font-mono text-[9px] uppercase tracking-[0.32em] text-plank-500/80">{label}</div>
+      <div className="font-mono text-[9px] uppercase tracking-[0.32em] text-plank-500/85">{label}</div>
       <div className="mt-1.5 font-display text-xl leading-tight text-ink-300 sm:text-2xl">{value}</div>
     </div>
   );
@@ -103,35 +132,5 @@ function SplitLine({ children, delay = 0 }: { children: React.ReactNode; delay?:
         {children}
       </motion.span>
     </span>
-  );
-}
-
-function SkylineBackdrop() {
-  // 11 vertical "plank" bars in business accent colors — abstract storefront skyline
-  const accents = businesses.map((b) => b.accent);
-  return (
-    <div className="absolute inset-0">
-      <div className="absolute inset-x-0 bottom-0 flex h-[55%] items-end opacity-[0.18] lg:h-[60%]">
-        {accents.map((color, i) => (
-          <div
-            key={i}
-            className="h-full flex-1"
-            style={{
-              background: `linear-gradient(180deg, transparent 0%, ${color}66 35%, ${color} 100%)`,
-              transform: `translateY(${(i % 3) * 8}px)`,
-            }}
-          />
-        ))}
-      </div>
-      <div className="absolute inset-x-0 bottom-0 h-[20%] bg-gradient-to-t from-paper-100 to-transparent" />
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-50 mix-blend-multiply"
-        style={{
-          backgroundImage:
-            'repeating-linear-gradient(90deg, transparent 0px, transparent 80px, rgba(91,59,34,0.06) 80px, rgba(91,59,34,0.06) 81px)',
-        }}
-      />
-    </div>
   );
 }
