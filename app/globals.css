@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --paper: #F7F1E0;
+  --linen: #FAF6EC;
+  --ink: #1C1612;
+  --plank: #5B3B22;
+  --moss: #3E5544;
+  --ember: #B85433;
+  --brass: #C99B4B;
+}
+
+html,
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-body), 'Inter', system-ui, sans-serif;
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(201, 155, 75, 0.20) 0%, transparent 40%),
+    radial-gradient(ellipse at 88% 20%, rgba(184, 84, 51, 0.13) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 100%, rgba(62, 85, 68, 0.10) 0%, transparent 55%),
+    var(--paper);
+  min-height: 100vh;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.36 0 0 0 0 0.24 0 0 0 0 0.10 0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.6;
+  mix-blend-mode: multiply;
+  z-index: 1;
+}
+
+main,
+nav,
+footer {
+  position: relative;
+  z-index: 2;
+}
+
+::selection {
+  background: var(--ember);
+  color: var(--linen);
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #EFE6CD; }
+::-webkit-scrollbar-thumb { background: #A8743D; border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: #7E5128; }
+
+@layer base {
+  h1, h2, h3, h4 {
+    font-family: var(--font-display), 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+  a {
+    text-underline-offset: 4px;
+  }
+}
+
+@layer components {
+  .skip-link {
+    @apply sr-only focus:not-sr-only fixed top-2 left-2 z-50 bg-ink-300 text-linen px-4 py-2 rounded;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-full bg-ink-300 px-6 py-3 font-medium text-linen transition hover:bg-plank-500 hover:scale-[1.02] active:scale-95;
+    box-shadow: 0 10px 30px -10px rgba(28, 22, 18, 0.45);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-full border border-ink-300/30 px-6 py-3 font-medium text-ink-300 transition hover:border-ink-300/70 hover:bg-ink-300/5;
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center gap-2 rounded-full px-6 py-3 font-medium text-linen transition hover:scale-[1.02] active:scale-95;
+  }
+
+  .eyebrow {
+    @apply font-mono text-[10px] uppercase tracking-[0.32em] text-plank-500;
+  }
+
+  .stamp {
+    @apply font-mono text-[10px] uppercase tracking-[0.22em] border border-current rounded-full px-3 py-1 inline-flex items-center gap-1.5;
+  }
+
+  .vintage-rule {
+    background-image: linear-gradient(90deg, transparent, currentColor 25%, currentColor 75%, transparent);
+    height: 1px;
+  }
+
+  .heading-xl {
+    @apply font-display text-[clamp(2.5rem,9vw,8rem)] leading-[0.95] tracking-tight;
+  }
+
+  .heading-lg {
+    @apply font-display text-[clamp(2rem,6vw,5rem)] leading-[1.02] tracking-tight;
+  }
+
+  .heading-md {
+    @apply font-display text-[clamp(1.5rem,4vw,3rem)] leading-tight tracking-tight;
+  }
+
+  .card-paper {
+    @apply rounded-2xl bg-linen border border-ink-300/10 shadow-[0_30px_60px_-30px_rgba(28,22,18,0.35)];
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .mask-fade-x {
+    mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
