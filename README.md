@@ -1,8 +1,10 @@
 # The Lima Plank
 
+**Live → https://sweet-dreams-us.github.io/TheLimaPlank/**
+
 The marketing site for **The Lima Plank** — a collective of eleven independently owned businesses on a single boardwalk-style block in downtown Lima, Ohio.
 
-A main directory homepage links to individual editorial pages for each storefront. Each business page links out to its own external website.
+A main directory homepage links to individual editorial pages for each storefront. Each business page links out to its own external website. Deployed automatically to GitHub Pages on every push to `main`.
 
 ## Stack
 
